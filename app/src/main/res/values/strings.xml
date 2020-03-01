@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">producteval</string>
+    <string name="add">add</string>
+    <string name="name">name</string>
+    <string name="ok">ok</string>
+    <string name="cancel">cancel</string>
+    <string name="scan_cancelled">barcode scan cancelled</string>
+    <string name="code_type">code type</string>
+    <string name="code">code</string>
+    <string name="rating">rating</string>
+    <string name="description">description</string>
+    <string name="category_count">category count:</string>
+    <string name="product_count">product count:</string>
+</resources>
