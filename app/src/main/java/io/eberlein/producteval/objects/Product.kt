@@ -8,9 +8,10 @@ class Product(
     val codeType:String,
     var rating:Int,
     var description:String,
-    var image: Bitmap?
+    var image: Bitmap?,
+    var imageRotation: Float
 ):
     DBObject<Product>("product") {
-    constructor(code:String, codeType: String): this("", code, codeType, 0, "", null)
-    constructor(): this("", "", "", 0, "", null)
+    constructor(code:String, codeType: String): this("", code, codeType, 0, "", null, 0F)
+    constructor(): this("", "", "", 0, "", null, 0F)
 }

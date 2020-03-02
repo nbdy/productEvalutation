@@ -61,6 +61,7 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
         }
         if(item.image != null) {
             iv.setImageBitmap(item.image)
+            // iv.rotation = item.imageRotation
         }
         iv.onClick {
             val cameraDialog = Dialog(ctx)
@@ -77,22 +78,21 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
                         iv.setImageBitmap(bmp.bitmap)
                         iv.rotation = (-bmp.rotationDegrees).toFloat()
                         item.image = bmp.bitmap
+                        item.imageRotation = iv.rotation
                         item.save()
+                        cameraDialog.dismiss()
                     }
                 }
             }
             fa.start()
             cameraDialog.show()
         }
+        n.setText(item.name)
         ct.setText(item.codeType)
         c.setText(item.code)
         r.progress = item.rating
         d.setText(item.description)
         dialog.show()
-    }
-
-    override fun onItemClicked(item: Product) {
-        context?.let { createProductDialog(it, item) }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -116,10 +116,14 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
         }
         rvProducts = r.findViewById(R.id.rvProducts)
         rvProductsAdapter = ProductsAdapter(this)
-        rvProductsAdapter.add(category.getProductObjects())
+        activity?.runOnUiThread { rvProductsAdapter.add(category.getProductObjects()) }  // todo with viewmodel and livedata maybe
         rvProducts.adapter = rvProductsAdapter
         rvProducts.layoutManager = LinearLayoutManager(context)
         rvProducts.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         return r
+    }
+
+    override fun onItemClicked(item: Product) {
+        context?.let { createProductDialog(it, item) }
     }
 }

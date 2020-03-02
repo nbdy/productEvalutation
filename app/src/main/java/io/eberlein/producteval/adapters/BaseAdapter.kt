@@ -2,6 +2,7 @@ package io.eberlein.producteval.adapters
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -11,12 +12,15 @@ import splitties.experimental.InternalSplittiesApi
 import splitties.typesaferecyclerview.ItemViewHolder
 import splitties.views.dsl.core.*
 import splitties.views.onClick
+import splitties.views.onLongClick
 import splitties.views.recyclerview.verticalLayoutManager
 import splitties.views.selectable.SelectableLinearLayout
 
 @InternalSplittiesApi
 class ListItem(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int = 0, disableDefaultTint: Boolean):
     SelectableLinearLayout(ctx, attrs, defStyleAttr) {
+
+    var extraMenuOpen: Boolean = false
 
     constructor(ctx: Context): this(ctx, null, disableDefaultTint = false)
     constructor(ctx: Context, attrs: AttributeSet?): this(ctx, attrs, disableDefaultTint = false)
@@ -44,6 +48,23 @@ class ListItem(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int = 0, disabl
             width = matchParent
             height = dip(64)
         })
+    }
+
+    fun toggleExtraMenu(){
+        if(extraMenuOpen) hideExtraMenu()
+        else showExtraMenu()
+    }
+
+    fun showExtraMenu(){
+        extraMenuOpen = true
+        btnOne.visibility = View.VISIBLE
+        btnTwo.visibility = View.VISIBLE
+    }
+
+    fun hideExtraMenu(){
+        extraMenuOpen = false
+        btnOne.visibility = View.VISIBLE
+        btnTwo.visibility = View.VISIBLE
     }
 }
 
@@ -86,6 +107,7 @@ abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: 
 
         init {
             itemView.onClick { host.onItemClicked(data) }
+            itemView.onLongClick { itemView.toggleExtraMenu() }
         }
 
         interface Host<T> {

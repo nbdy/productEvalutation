@@ -6,8 +6,8 @@ class Category(val name: String, private val products: MutableList<String>): DBO
 
     fun getProductObjects(): MutableList<Product> {
         val r: MutableList<Product> = ArrayList()
-        val b = getBook()
-        for(p:String in products) r.add(b.read(p))
+        val t = Product()
+        for(p:String in products) r.add(t.get(p))
         return r
     }
 
