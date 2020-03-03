@@ -31,6 +31,8 @@ import io.eberlein.producteval.viewmodels.ProductsViewModel
 import io.eberlein.producteval.viewmodels.ProductsViewModelFactory
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.view.CameraView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import splitties.experimental.InternalSplittiesApi
 import splitties.toast.toast
 import splitties.views.onClick
@@ -70,10 +72,14 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
         return d
     }
 
+    private fun updateProduct(product: Product){
+        GlobalScope.launch { db.product().update(product) }
+    }
+
     private fun saveBitmap(product: Product, bmp: Bitmap){ // todo actually use
         product.image = bmp.sha256()
         bmp.save(File(getImageDirectory(), product.image!!))
-        db.product().update(product)
+        updateProduct(product)
     }
 
     private fun loadBitmap(product: Product): Bitmap? {
@@ -97,7 +103,7 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
             item.name = n.text.toString()
             item.rating = r.progress
             item.description = d.text.toString()
-            db.product().update(item)
+            updateProduct(item)
             rvProductsAdapter.add(item)
             dialog.dismiss()
         }
@@ -124,7 +130,7 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
                         iv.rotation = (-bmp.rotationDegrees).toFloat()
                         saveBitmap(item, bmp.bitmap)
                         item.imageRotation = iv.rotation
-                        db.product().update(item)
+                        updateProduct(item)
                         cameraDialog.dismiss()
                     }
                 }

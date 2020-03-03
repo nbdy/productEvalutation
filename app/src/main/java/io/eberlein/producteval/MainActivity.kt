@@ -22,6 +22,8 @@ import io.eberlein.producteval.objects.DB
 import io.eberlein.producteval.ui.products.ProductsFragment
 import io.eberlein.producteval.viewmodels.CategoryViewModel
 import io.eberlein.producteval.viewmodels.CategoryViewModelFactory
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import splitties.arch.room.roomDb
 import splitties.experimental.InternalSplittiesApi
 import splitties.fragments.fragmentTransaction
@@ -80,7 +82,7 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
         cancel.setOnClickListener { dialog.dismiss() }
         ok.setOnClickListener {
             val c = Category(et.text.toString())
-            db.category().insert(c)
+            GlobalScope.launch { db.category().insert(c) }
             catRVA.add(c)
             dialog.dismiss()
         }

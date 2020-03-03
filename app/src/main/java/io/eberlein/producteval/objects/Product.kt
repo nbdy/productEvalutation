@@ -18,7 +18,7 @@ data class Product(
 
 @Dao
 interface ProductDao{
-    @Insert fun insert(product: Product)
-    @Update fun update(product: Product)
-    @Delete fun delete(product: Product)
+    @Insert suspend fun insert(product: Product)
+    @Update suspend fun update(product: Product)
+    @Delete suspend fun delete(product: Product)
 }

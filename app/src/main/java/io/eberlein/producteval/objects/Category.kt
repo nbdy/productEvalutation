@@ -21,8 +21,8 @@ data class CategoryWithProducts(
 
 @Dao
 interface CategoryDao{
-    @Transaction @Query("select * from category where cid = :cid") fun getCategoryWithProducts(cid: Long): List<CategoryWithProducts>
-    @Query("select * from category") fun getAll(): List<Category>
-    @Insert fun insert(category: Category)
-    @Delete fun delete(category: Category)
+    @Transaction @Query("select * from category where cid = :cid") suspend fun getCategoryWithProducts(cid: Long): List<CategoryWithProducts>
+    @Query("select * from category") suspend fun getAll(): List<Category>
+    @Insert suspend fun insert(category: Category)
+    @Delete suspend fun delete(category: Category)
 }
