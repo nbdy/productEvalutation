@@ -46,7 +46,10 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.2.1'
     implementation 'androidx.navigation:navigation-ui-ktx:2.2.1'
 
-    implementation 'io.paperdb:paperdb:2.6'
+    def room_version = "2.2.4"
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
 
     def splitties_version = "3.0.0-alpha06"
     implementation("com.louiscad.splitties:splitties-permissions:$splitties_version")
@@ -59,6 +62,7 @@ dependencies {
     implementation("com.louiscad.splitties:splitties-views-dsl:$splitties_version")
     implementation("com.louiscad.splitties:splitties-views-dsl-appcompat:$splitties_version")
     implementation("com.louiscad.splitties:splitties-toast:$splitties_version")
+    implementation("com.louiscad.splitties:splitties-arch-room:$splitties_version")
 
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
     implementation 'com.google.zxing:core:3.3.0'

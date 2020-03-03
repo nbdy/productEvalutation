@@ -3,6 +3,8 @@ package io.eberlein.producteval.ui.products
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +15,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,17 +27,59 @@ import io.eberlein.producteval.R
 import io.eberlein.producteval.adapters.BaseAdapter
 import io.eberlein.producteval.adapters.ProductsAdapter
 import io.eberlein.producteval.objects.*
+import io.eberlein.producteval.viewmodels.ProductsViewModel
+import io.eberlein.producteval.viewmodels.ProductsViewModelFactory
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.view.CameraView
 import splitties.experimental.InternalSplittiesApi
 import splitties.toast.toast
 import splitties.views.onClick
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+
+
+fun Bitmap.sha256(compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+                  quality: Int = 100): String {
+    val os = ByteArrayOutputStream()
+    this.compress(compressFormat, quality, os)
+    return os.toByteArray().sha256()
+}
+
+fun Bitmap.save(file: File,
+                compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+                quality: Int = 100){
+    val o = FileOutputStream(file)
+    this.compress(compressFormat, quality, o)
+    o.flush()
+    o.close()
+}
 
 @InternalSplittiesApi
-class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter.ViewHolder.Host<Product> {
+class ProductsFragment(private val db: DB, private val category: Category) : Fragment(), BaseAdapter.ViewHolder.Host<Product> {
     private lateinit var rvProducts: RecyclerView
     private lateinit var rvProductsAdapter: ProductsAdapter
     private lateinit var addBtn: FloatingActionButton
+
+    private lateinit var model: ProductsViewModel
+
+    private fun getImageDirectory(directoryName: String = "images"): File{
+        val d = File(context?.filesDir, directoryName)
+        if(!d.exists()) d.mkdir()
+        return d
+    }
+
+    private fun saveBitmap(product: Product, bmp: Bitmap){ // todo actually use
+        product.image = bmp.sha256()
+        bmp.save(File(getImageDirectory(), product.image!!))
+        db.product().update(product)
+    }
+
+    private fun loadBitmap(product: Product): Bitmap? {
+        if(product.image == null) return null
+        return BitmapFactory.decodeStream(FileInputStream(File(product.image!!)))
+    }
 
     private fun createProductDialog(ctx: Context, item: Product){
         val dialog = Dialog(ctx)
@@ -51,8 +97,7 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
             item.name = n.text.toString()
             item.rating = r.progress
             item.description = d.text.toString()
-            item.save()
-            category.addProduct(item)
+            db.product().update(item)
             rvProductsAdapter.add(item)
             dialog.dismiss()
         }
@@ -60,7 +105,7 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
             dialog.dismiss()
         }
         if(item.image != null) {
-            iv.setImageBitmap(item.image)
+            iv.setImageBitmap(loadBitmap(item))
             // iv.rotation = item.imageRotation
         }
         iv.onClick {
@@ -77,9 +122,9 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
                     if (bmp != null) {
                         iv.setImageBitmap(bmp.bitmap)
                         iv.rotation = (-bmp.rotationDegrees).toFloat()
-                        item.image = bmp.bitmap
+                        saveBitmap(item, bmp.bitmap)
                         item.imageRotation = iv.rotation
-                        item.save()
+                        db.product().update(item)
                         cameraDialog.dismiss()
                     }
                 }
@@ -104,22 +149,27 @@ class ProductsFragment(private val category: Category) : Fragment(), BaseAdapter
         }
     }
 
+    private fun setupRecycler(){
+        rvProductsAdapter = ProductsAdapter(this)
+        rvProducts.adapter = rvProductsAdapter
+        rvProducts.layoutManager = LinearLayoutManager(context)
+        rvProducts.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val r = inflater.inflate(R.layout.fragment_products, container, false)
-        addBtn = r.findViewById(R.id.btnAddProduct)
-        addBtn.onClick {
-            IntentIntegrator.forSupportFragment(this).initiateScan()
-        }
         rvProducts = r.findViewById(R.id.rvProducts)
-        rvProductsAdapter = ProductsAdapter(this)
-        activity?.runOnUiThread { rvProductsAdapter.add(category.getProductObjects()) }  // todo with viewmodel and livedata maybe
-        rvProducts.adapter = rvProductsAdapter
-        rvProducts.layoutManager = LinearLayoutManager(context)
-        rvProducts.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        setupRecycler()
+        addBtn = r.findViewById(R.id.btnAddProduct)
+        addBtn.onClick { IntentIntegrator.forSupportFragment(this).initiateScan() }
+        model = viewModels<ProductsViewModel> { ProductsViewModelFactory(db, category.cid) }.value
+        model.getProducts().observe(viewLifecycleOwner, Observer { products ->
+            rvProductsAdapter.add(products)
+        })
         return r
     }
 

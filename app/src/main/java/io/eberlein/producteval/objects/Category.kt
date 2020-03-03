@@ -1,22 +1,28 @@
 package io.eberlein.producteval.objects
 
-class Category(val name: String, private val products: MutableList<String>): DBObject<Category>("category") {
-    constructor(): this("", ArrayList())
-    constructor(name: String): this(name, ArrayList())
+import androidx.room.*
 
-    fun getProductObjects(): MutableList<Product> {
-        val r: MutableList<Product> = ArrayList()
-        val t = Product()
-        for(p:String in products) r.add(t.get(p))
-        return r
-    }
+@Entity
+data class Category(
+    @PrimaryKey(autoGenerate = true) val cid: Long,
+    @ColumnInfo val name: String
+){
+    constructor(name: String): this(0, name)
+}
 
-    fun addProduct(product: Product) {
-        if(!products.contains(product.id)) products.add(product.id); save()
-    }
+data class CategoryWithProducts(
+    @Embedded val category: Category,
+    @Relation(
+        parentColumn = "cid",
+        entityColumn = "pid"
+    )
+    val products: List<Product>
+)
 
-    fun removeProduct(product: Product) {
-        products.remove(product.id)
-        save()
-    }
+@Dao
+interface CategoryDao{
+    @Transaction @Query("select * from category where cid = :cid") fun getCategoryWithProducts(cid: Long): List<CategoryWithProducts>
+    @Query("select * from category") fun getAll(): List<Category>
+    @Insert fun insert(category: Category)
+    @Delete fun delete(category: Category)
 }
