@@ -5,6 +5,7 @@ import androidx.room.*
 @Entity
 data class Product(
     @PrimaryKey(autoGenerate = true) val pid: Long,
+    @ColumnInfo val cid:Long,
     @ColumnInfo var name:String,
     @ColumnInfo val code:String,
     @ColumnInfo val codeType:String,
@@ -13,7 +14,7 @@ data class Product(
     @ColumnInfo var image:String?,
     @ColumnInfo var imageRotation:Float
 ){
-    constructor(code:String, codeType: String): this(0, "", code, codeType, 0, "", null, 0F)
+    constructor(cid:Long, code:String, codeType: String): this(0, cid,"", code, codeType, 0, "", null, 0F)
 }
 
 @Dao

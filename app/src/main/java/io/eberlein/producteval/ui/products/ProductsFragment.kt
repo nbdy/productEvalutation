@@ -42,6 +42,9 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 
 
+// todo fix products not showing after restart / fragment change
+// probably some db layout issue; can't be coroutines being too slow
+
 fun Bitmap.sha256(compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
                   quality: Int = 100): String {
     val os = ByteArrayOutputStream()
@@ -73,10 +76,10 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
     }
 
     private fun updateProduct(product: Product){
-        GlobalScope.launch { db.product().update(product) }
+        GlobalScope.launch { db.product().update(product) }.start()
     }
 
-    private fun saveBitmap(product: Product, bmp: Bitmap){ // todo actually use
+    private fun saveBitmap(product: Product, bmp: Bitmap){ // todo fix; this shits taking hella long
         product.image = bmp.sha256()
         bmp.save(File(getImageDirectory(), product.image!!))
         updateProduct(product)
@@ -150,7 +153,7 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
         val r: IntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
         if(r.contents == null) toast(R.string.scan_cancelled)
         else {
-            val p = Product(r.contents, r.formatName)
+            val p = Product(category.cid, r.contents, r.formatName)
             context?.let { createProductDialog(it, p) }
         }
     }
