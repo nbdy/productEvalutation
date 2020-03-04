@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,7 @@ import io.eberlein.producteval.viewmodels.ProductsViewModel
 import io.eberlein.producteval.viewmodels.ProductsViewModelFactory
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.view.CameraView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import splitties.experimental.InternalSplittiesApi
@@ -41,9 +43,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-
-// todo fix products not showing after restart / fragment change
-// probably some db layout issue; can't be coroutines being too slow
 
 fun Bitmap.sha256(compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
                   quality: Int = 100): String {
@@ -75,18 +74,23 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
         return d
     }
 
-    private fun updateProduct(product: Product){
-        GlobalScope.launch { db.product().update(product) }.start()
+    private fun updateProduct(product: Product) = GlobalScope.launch(Dispatchers.Default){
+        Log.d(tag, "updating product")
+        db.product().insert(product)
+        Log.d(tag, "updated product")
     }
 
     private fun saveBitmap(product: Product, bmp: Bitmap){ // todo fix; this shits taking hella long
+        Log.d(tag, "saving bitmap")
         product.image = bmp.sha256()
         bmp.save(File(getImageDirectory(), product.image!!))
         updateProduct(product)
+        Log.d(tag, "saved bitmap")
     }
 
     private fun loadBitmap(product: Product): Bitmap? {
         if(product.image == null) return null
+        Log.d(tag, "loading bitmap")
         return BitmapFactory.decodeStream(FileInputStream(File(product.image!!)))
     }
 
@@ -184,5 +188,9 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
 
     override fun onItemClicked(item: Product) {
         context?.let { createProductDialog(it, item) }
+    }
+
+    override fun onItemBtnOneClicked(item: Product) {
+        GlobalScope.launch(Dispatchers.Default) { db.product().delete(item) }
     }
 }

@@ -30,11 +30,7 @@ class ProductsViewModel(private val db: DB, private val categoryId: Long) : View
 
     private fun loadProducts(){
         GlobalScope.launch {
-            val t: MutableList<Product> = ArrayList()
-            db.category().getCategoryWithProducts(categoryId).forEach { cwp ->
-                t.addAll(cwp.products)
-            }
-            products.postValue(t)
+            products.postValue(db.product().getProductsOfCategory(categoryId))
         }
     }
 }

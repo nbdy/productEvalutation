@@ -108,10 +108,14 @@ abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: 
         init {
             itemView.onClick { host.onItemClicked(data) }
             itemView.onLongClick { itemView.toggleExtraMenu() }
+            itemView.btnOne.onClick { host.onItemBtnOneClicked(data) }
+            itemView.btnTwo.onClick { host.onItemBtnTwoClicked(data) }
         }
 
         interface Host<T> {
             fun onItemClicked(item: T)
+            fun onItemBtnOneClicked(item: T){}
+            fun onItemBtnTwoClicked(item: T){}
         }
     }
 }

@@ -19,7 +19,7 @@ data class Product(
 
 @Dao
 interface ProductDao{
-    @Insert suspend fun insert(product: Product)
-    @Update suspend fun update(product: Product)
+    @Query("select * from product where cid = :cid") suspend fun getProductsOfCategory(cid: Long): List<Product>
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(product: Product)
     @Delete suspend fun delete(product: Product)
 }

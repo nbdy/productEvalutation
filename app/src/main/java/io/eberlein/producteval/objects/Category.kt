@@ -10,18 +10,8 @@ data class Category(
     constructor(name: String): this(0, name)
 }
 
-data class CategoryWithProducts(
-    @Embedded val category: Category,
-    @Relation(
-        parentColumn = "cid",
-        entityColumn = "pid"
-    )
-    val products: List<Product>
-)
-
 @Dao
 interface CategoryDao{
-    @Transaction @Query("select * from category where cid = :cid") suspend fun getCategoryWithProducts(cid: Long): List<CategoryWithProducts>
     @Query("select * from category") suspend fun getAll(): List<Category>
     @Insert suspend fun insert(category: Category)
     @Delete suspend fun delete(category: Category)

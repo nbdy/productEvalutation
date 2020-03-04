@@ -22,6 +22,7 @@ import io.eberlein.producteval.objects.DB
 import io.eberlein.producteval.ui.products.ProductsFragment
 import io.eberlein.producteval.viewmodels.CategoryViewModel
 import io.eberlein.producteval.viewmodels.CategoryViewModelFactory
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import splitties.arch.room.roomDb
@@ -110,5 +111,9 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
             replace(R.id.nav_host_fragment, ProductsFragment(db, item))
         }
         drawerLayout.closeDrawers()
+    }
+
+    override fun onItemBtnOneClicked(item: Category) {
+        GlobalScope.launch(Dispatchers.Default) { db.category().delete(item) }
     }
 }

@@ -3,6 +3,7 @@ package io.eberlein.producteval.adapters
 import android.content.Context
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import io.eberlein.producteval.R
 import io.eberlein.producteval.objects.Product
 import splitties.experimental.InternalSplittiesApi
 
@@ -15,6 +16,10 @@ class ProductsAdapter @InternalSplittiesApi constructor(host: ViewHolder.Host<Pr
     class VH(ctx: Context, layoutManager: RecyclerView.LayoutManager, host: Host<Product>) : ViewHolder<Product>(ctx,
         layoutManager, host
     ){
+        init {
+            itemView.btnOne.setText(R.string.delete)
+        }
+
         @InternalSplittiesApi
         override fun ListItem.onBind() {
             firstLine.text = data.name
