@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView
 import io.eberlein.producteval.adapters.BaseAdapter
 import io.eberlein.producteval.adapters.CategoryAdapter
 import io.eberlein.producteval.objects.Category
+import io.eberlein.producteval.objects.CategoryDao
 import io.eberlein.producteval.objects.DB
+import io.eberlein.producteval.objects.ProductDao
 import io.eberlein.producteval.ui.products.ProductsFragment
 import io.eberlein.producteval.viewmodels.CategoryViewModel
 import io.eberlein.producteval.viewmodels.CategoryViewModelFactory
@@ -37,7 +39,9 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
     private lateinit var catRV: RecyclerView
     private lateinit var catRVA: CategoryAdapter
 
-    private lateinit var db: DB
+    private lateinit var productDao: ProductDao
+    private lateinit var categoryDao: CategoryDao
+
     private lateinit var model: CategoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,16 +55,18 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
     }
 
     private fun setupViewModel(){
-        model = viewModels<CategoryViewModel> { CategoryViewModelFactory(db) }.value
+        model = viewModels<CategoryViewModel> { CategoryViewModelFactory(categoryDao) }.value
         model.getCategories().observe(this, Observer { cats ->
             catRVA.add(cats)
         })
     }
 
     private fun setupDB(){
-        db = roomDb("prodeval") {
+        val db: DB = roomDb("prodeval") {
             // fallbackToDestructiveMigration()
         }
+        categoryDao = db.category()
+        productDao = db.product()
     }
 
     private fun setupNavBar(){
@@ -83,7 +89,7 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
         cancel.setOnClickListener { dialog.dismiss() }
         ok.setOnClickListener {
             val c = Category(et.text.toString())
-            GlobalScope.launch { db.category().insert(c) }
+            GlobalScope.launch { model.insert(c) }
             catRVA.add(c)
             dialog.dismiss()
         }
@@ -108,12 +114,12 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
 
     override fun onItemClicked(item: Category) {
         fragmentTransaction {
-            replace(R.id.nav_host_fragment, ProductsFragment(db, item))
+            replace(R.id.nav_host_fragment, ProductsFragment(productDao, item))
         }
         drawerLayout.closeDrawers()
     }
 
     override fun onItemBtnOneClicked(item: Category) {
-        GlobalScope.launch(Dispatchers.Default) { db.category().delete(item) }
+        GlobalScope.launch(Dispatchers.Default) { model.delete(item) }
     }
 }

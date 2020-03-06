@@ -13,6 +13,23 @@ class ProductsAdapter @InternalSplittiesApi constructor(host: ViewHolder.Host<Pr
         return VH(parent.context, layoutManager, host)
     }
 
+    override fun add(item: Product) {
+        var r = false
+        var d: Int? = null
+        for(i: Product in items){
+            if(item.pid == i.pid) {
+                d = items.indexOf(item)
+                items[d] = item
+                r = true
+            }
+        }
+        if(!r) {
+            items.add(item)
+            d = items.indexOf(item)
+        }
+        if(d != null) notifyItemChanged(d)
+    }
+
     class VH(ctx: Context, layoutManager: RecyclerView.LayoutManager, host: Host<Product>) : ViewHolder<Product>(ctx,
         layoutManager, host
     ){

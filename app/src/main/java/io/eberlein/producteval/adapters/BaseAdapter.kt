@@ -71,7 +71,7 @@ class ListItem(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int = 0, disabl
 @InternalSplittiesApi
 abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: ViewHolder.Host<T>) : RecyclerView.Adapter<BaseAdapter.ViewHolder<T>>() {
     val layoutManager = verticalLayoutManager()
-    private val items: MutableList<T> = ArrayList()
+    val items: MutableList<T> = ArrayList()
 
     @InternalSplittiesApi
     override fun onBindViewHolder(holder: ViewHolder<T>, position: Int) {
@@ -82,11 +82,20 @@ abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: 
         return items.size
     }
 
-    fun add(item: T){
+    open fun add(item: T){
         if(!items.contains(item)) {
             items.add(item)
             notifyItemChanged(items.lastIndex)
+        } else {
+            val d: Int = items.indexOf(item)
+            items[d] = item
+            notifyItemChanged(d)
         }
+    }
+
+    fun set(items: List<T>){
+        this.items.clear()
+        add(items)
     }
 
     fun add(items: List<T>){
@@ -94,7 +103,9 @@ abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: 
     }
 
     fun remove(item: T){
+        val d: Int = items.indexOf(item)
         items.remove(item)
+        notifyItemChanged(d)
     }
 
     fun remove(items: List<T>){

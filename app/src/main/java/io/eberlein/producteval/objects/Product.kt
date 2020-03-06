@@ -19,7 +19,8 @@ data class Product(
 
 @Dao
 interface ProductDao{
-    @Query("select * from product where cid = :cid") suspend fun getProductsOfCategory(cid: Long): List<Product>
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insert(product: Product)
-    @Delete suspend fun delete(product: Product)
+    @Query("select * from product where cid = :cid") fun getProductsOfCategory(cid: Long): List<Product>
+    @Query("select * from product where code = :code") fun getByCode(code: String): Product?
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(product: Product)
+    @Delete fun delete(product: Product)
 }

@@ -12,7 +12,7 @@ data class Category(
 
 @Dao
 interface CategoryDao{
-    @Query("select * from category") suspend fun getAll(): List<Category>
-    @Insert suspend fun insert(category: Category)
-    @Delete suspend fun delete(category: Category)
+    @Query("select * from category") fun getAll(): List<Category>
+    @Insert fun insert(category: Category)
+    @Delete fun delete(category: Category)
 }

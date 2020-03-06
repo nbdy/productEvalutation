@@ -61,7 +61,7 @@ fun Bitmap.save(file: File,
 }
 
 @InternalSplittiesApi
-class ProductsFragment(private val db: DB, private val category: Category) : Fragment(), BaseAdapter.ViewHolder.Host<Product> {
+class ProductsFragment(private val dao: ProductDao, private val category: Category) : Fragment(), BaseAdapter.ViewHolder.Host<Product> {
     private lateinit var rvProducts: RecyclerView
     private lateinit var rvProductsAdapter: ProductsAdapter
     private lateinit var addBtn: FloatingActionButton
@@ -76,7 +76,7 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
 
     private fun updateProduct(product: Product) = GlobalScope.launch(Dispatchers.Default){
         Log.d(tag, "updating product")
-        db.product().insert(product)
+        dao.insert(product)
         Log.d(tag, "updated product")
     }
 
@@ -157,8 +157,13 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
         val r: IntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
         if(r.contents == null) toast(R.string.scan_cancelled)
         else {
-            val p = Product(category.cid, r.contents, r.formatName)
-            context?.let { createProductDialog(it, p) }
+            GlobalScope.launch {
+                val p = dao.getByCode(r.contents)
+                if(p != null){ activity?.runOnUiThread { context?.let { createProductDialog(it, p) } } }
+                else { activity?.runOnUiThread { context?.let {
+                    createProductDialog(it, Product(category.cid, r.contents, r.formatName))
+                }} }
+            }
         }
     }
 
@@ -179,9 +184,9 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
         setupRecycler()
         addBtn = r.findViewById(R.id.btnAddProduct)
         addBtn.onClick { IntentIntegrator.forSupportFragment(this).initiateScan() }
-        model = viewModels<ProductsViewModel> { ProductsViewModelFactory(db, category.cid) }.value
+        model = viewModels<ProductsViewModel> { ProductsViewModelFactory(dao, category.cid) }.value
         model.getProducts().observe(viewLifecycleOwner, Observer { products ->
-            rvProductsAdapter.add(products)
+            rvProductsAdapter.set(products)
         })
         return r
     }
@@ -191,6 +196,7 @@ class ProductsFragment(private val db: DB, private val category: Category) : Fra
     }
 
     override fun onItemBtnOneClicked(item: Product) {
-        GlobalScope.launch(Dispatchers.Default) { db.product().delete(item) }
+        GlobalScope.launch(Dispatchers.Default) { dao.delete(item) }
+        rvProductsAdapter.remove(item)
     }
 }
