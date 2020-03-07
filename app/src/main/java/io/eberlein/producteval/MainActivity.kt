@@ -79,18 +79,21 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
         setSupportActionBar(toolbar)
     }
 
-    private fun createCategoryDialog(){
+    private fun createCategoryDialog(item: Category? = null){
+        var c: Category? = item
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_category)
         val et: EditText = dialog.findViewById(R.id.et_category_name)
+        if(c != null) et.setText(c.name)
         val ok: Button = dialog.findViewById(R.id.btn_ok)
         val cancel: Button = dialog.findViewById(R.id.btn_cancel)
         cancel.setOnClickListener { dialog.dismiss() }
         ok.setOnClickListener {
-            val c = Category(et.text.toString())
-            GlobalScope.launch { model.insert(c) }
-            catRVA.add(c)
+            if(c == null) c = Category(et.text.toString())
+            else c!!.name = et.text.toString()
+            GlobalScope.launch { model.insert(c!!) }
+            catRVA.add(c!!)
             dialog.dismiss()
         }
         dialog.show()
@@ -121,5 +124,10 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
 
     override fun onItemBtnOneClicked(item: Category) {
         GlobalScope.launch(Dispatchers.Default) { model.delete(item) }
+        catRVA.remove(item)
+    }
+
+    override fun onItemBtnTwoClicked(item: Category) {
+        createCategoryDialog(item)
     }
 }

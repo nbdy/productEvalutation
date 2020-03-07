@@ -1,11 +1,14 @@
 package io.eberlein.producteval.adapters
 
 import android.content.Context
+import android.graphics.Color
+import android.view.View.INVISIBLE
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.eberlein.producteval.R
 import io.eberlein.producteval.objects.Product
 import splitties.experimental.InternalSplittiesApi
+import splitties.resources.color
 
 @InternalSplittiesApi
 class ProductsAdapter @InternalSplittiesApi constructor(host: ViewHolder.Host<Product>) : BaseAdapter<Product>(host) {
@@ -35,6 +38,8 @@ class ProductsAdapter @InternalSplittiesApi constructor(host: ViewHolder.Host<Pr
     ){
         init {
             itemView.btnOne.setText(R.string.delete)
+            itemView.btnOne.setBackgroundColor(Color.RED)
+            itemView.btnTwo.visibility = INVISIBLE
         }
 
         @InternalSplittiesApi

@@ -29,10 +29,6 @@ class ProductsViewModel(private val dao: ProductDao, private val categoryId: Lon
         return products
     }
 
-    fun update(product: Product) {
-        dao.insert(product)
-    }
-
     fun delete(product: Product) {
         dao.delete(product)
     }

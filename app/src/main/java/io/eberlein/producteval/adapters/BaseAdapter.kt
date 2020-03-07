@@ -35,13 +35,13 @@ class ListItem(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int = 0, disabl
     val content = inflate<SelectableLinearLayout>(R.layout.vh_multiline) {}
 
     @InternalSplittiesApi
-    val firstLine = content.findViewById<TextView>(R.id.tv_first_line)
+    val firstLine: TextView = content.findViewById(R.id.tv_first_line)
     @InternalSplittiesApi
-    val secondLine = content.findViewById<TextView>(R.id.tv_second_line)
+    val secondLine: TextView = content.findViewById(R.id.tv_second_line)
     @InternalSplittiesApi
-    val btnOne = content.findViewById<Button>(R.id.btn_one)
+    val btnOne: Button = content.findViewById(R.id.btn_one)
     @InternalSplittiesApi
-    val btnTwo = content.findViewById<Button>(R.id.btn_two)
+    val btnTwo: Button = content.findViewById(R.id.btn_two)
 
     init {
         add(content, lParams {
@@ -55,16 +55,16 @@ class ListItem(ctx: Context, attrs: AttributeSet?, defStyleAttr: Int = 0, disabl
         else showExtraMenu()
     }
 
-    fun showExtraMenu(){
+    private fun showExtraMenu(){
         extraMenuOpen = true
         btnOne.visibility = View.VISIBLE
         btnTwo.visibility = View.VISIBLE
     }
 
-    fun hideExtraMenu(){
+    private fun hideExtraMenu(){
         extraMenuOpen = false
-        btnOne.visibility = View.VISIBLE
-        btnTwo.visibility = View.VISIBLE
+        btnOne.visibility = View.INVISIBLE
+        btnTwo.visibility = View.INVISIBLE
     }
 }
 
@@ -117,7 +117,10 @@ abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: 
                                        host: Host<T>): ItemViewHolder<T, ListItem, ViewHolder.Host<T>>(host, ListItem(ctx)){
 
         init {
-            itemView.onClick { host.onItemClicked(data) }
+            itemView.onClick {
+                if(!itemView.extraMenuOpen) host.onItemClicked(data)
+                else itemView.toggleExtraMenu()
+            }
             itemView.onLongClick { itemView.toggleExtraMenu() }
             itemView.btnOne.onClick { host.onItemBtnOneClicked(data) }
             itemView.btnTwo.onClick { host.onItemBtnTwoClicked(data) }

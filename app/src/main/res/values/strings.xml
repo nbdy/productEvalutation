@@ -12,4 +12,5 @@
     <string name="category_count">category count:</string>
     <string name="product_count">product count:</string>
     <string name="delete">delete</string>
+    <string name="edit">edit</string>
 </resources>
