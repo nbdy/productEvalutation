@@ -105,7 +105,7 @@ abstract class BaseAdapter<T : Any> @InternalSplittiesApi constructor(val host: 
     fun remove(item: T){
         val d: Int = items.indexOf(item)
         items.remove(item)
-        notifyItemChanged(d)
+        notifyItemRemoved(d)
     }
 
     fun remove(items: List<T>){

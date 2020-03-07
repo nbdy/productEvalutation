@@ -92,17 +92,19 @@ class ProductsFragment(private val dao: ProductDao, private val category: Catego
     }
 
     private fun saveBitmap(product: Product, bmp: Bitmap){ // todo fix; this shits taking hella long
-        Log.d(tag, "saving bitmap")
-        product.image = bmp.sha256()
-        bmp.save(File(getImageDirectory(), product.image!!))
-        updateProduct(product)
-        Log.d(tag, "saved bitmap")
+        GlobalScope.launch {
+            Log.d(tag, "saving bitmap")
+            product.image = bmp.sha256()
+            bmp.save(File(getImageDirectory(), product.image!!))
+            updateProduct(product)
+            Log.d(tag, "saved bitmap")
+        }
     }
 
     private fun loadBitmap(product: Product): Bitmap? {
         if(product.image == null) return null
         Log.d(tag, "loading bitmap")
-        return BitmapFactory.decodeStream(FileInputStream(File(product.image!!)))
+        return BitmapFactory.decodeStream(FileInputStream(File(getImageDirectory(), product.image!!)))
     }
 
     private fun createProductDialog(ctx: Context, item: Product){
