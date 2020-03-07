@@ -42,7 +42,18 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.security.MessageDigest
 
+
+fun ByteArray.hash(algorithm: String): String {
+    return MessageDigest.getInstance(algorithm).digest(this).fold("", {
+            str, it -> str + "%02x".format(it)
+    })
+}
+
+fun ByteArray.sha256(): String {
+    return this.hash("SHA-256")
+}
 
 fun Bitmap.sha256(compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
                   quality: Int = 100): String {
