@@ -92,8 +92,12 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
         ok.setOnClickListener {
             if(c == null) c = Category(et.text.toString())
             else c!!.name = et.text.toString()
-            GlobalScope.launch { model.insert(c!!) }
-            catRVA.add(c!!)
+            GlobalScope.launch {
+                c = categoryDao.getById(categoryDao.insert(c!!))
+                runOnUiThread {
+                    catRVA.add(c!!)
+                }
+            }
             dialog.dismiss()
         }
         dialog.show()
@@ -123,7 +127,7 @@ class MainActivity : AppCompatActivity(), BaseAdapter.ViewHolder.Host<Category> 
     }
 
     override fun onItemBtnOneClicked(item: Category) {
-        GlobalScope.launch(Dispatchers.Default) { model.delete(item) }
+        GlobalScope.launch(Dispatchers.Default) { categoryDao.delete(item) }
         catRVA.remove(item)
     }
 

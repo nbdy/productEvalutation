@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import io.eberlein.producteval.objects.DB
 import io.eberlein.producteval.objects.Product
 import io.eberlein.producteval.objects.ProductDao
 import kotlinx.coroutines.GlobalScope

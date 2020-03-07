@@ -91,7 +91,7 @@ class ProductsFragment(private val dao: ProductDao, private val category: Catego
         Log.d(tag, "updated product")
     }
 
-    private fun saveBitmap(product: Product, bmp: Bitmap){ // todo fix; this shits taking hella long
+    private fun saveBitmap(product: Product, bmp: Bitmap){ // todo fix; this shits taking hella long / makes app crash if switching fragment too early
         GlobalScope.launch {
             Log.d(tag, "saving bitmap")
             product.image = bmp.sha256()
@@ -132,7 +132,7 @@ class ProductsFragment(private val dao: ProductDao, private val category: Catego
         }
         if(item.image != null) {
             iv.setImageBitmap(loadBitmap(item))
-            // iv.rotation = item.imageRotation
+            iv.rotation = item.imageRotation
         }
         iv.onClick {
             val cameraDialog = Dialog(ctx)
@@ -171,10 +171,12 @@ class ProductsFragment(private val dao: ProductDao, private val category: Catego
         if(r.contents == null) toast(R.string.scan_cancelled)
         else {
             GlobalScope.launch {
-                val p = dao.getByCode(r.contents)
-                if(p != null){ activity?.runOnUiThread { context?.let { createProductDialog(it, p) } } }
-                else { activity?.runOnUiThread { context?.let {
-                    createProductDialog(it, Product(category.cid, r.contents, r.formatName))
+                var p = dao.getByCode(r.contents)
+                if(p != null){ activity?.runOnUiThread { context?.let { createProductDialog(it, p!!) } } }
+                else {
+                    p = dao.getById(dao.insert(Product(category.cid, r.contents, r.formatName)))
+                    activity?.runOnUiThread { context?.let {
+                    createProductDialog(it, p)
                 }} }
             }
         }

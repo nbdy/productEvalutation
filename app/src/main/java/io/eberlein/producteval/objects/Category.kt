@@ -4,15 +4,14 @@ import androidx.room.*
 
 @Entity
 data class Category(
-    @PrimaryKey(autoGenerate = true) val cid: Long,
-    @ColumnInfo var name: String
-){
-    constructor(name: String): this(0, name)
-}
+    @ColumnInfo var name: String,
+    @PrimaryKey(autoGenerate = true) val cid: Long = 0
+)
 
 @Dao
 interface CategoryDao{
     @Query("select * from category") fun getAll(): List<Category>
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(category: Category)
+    @Query("select * from category where cid = :cid") fun getById(cid: Long): Category
+    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insert(category: Category): Long
     @Delete fun delete(category: Category)
 }

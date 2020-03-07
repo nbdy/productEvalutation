@@ -2,13 +2,12 @@ package io.eberlein.producteval.adapters
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.eberlein.producteval.R
 import io.eberlein.producteval.objects.Category
 import splitties.experimental.InternalSplittiesApi
-import splitties.resources.color
-import splitties.views.onClick
 
 
 @InternalSplittiesApi
@@ -18,18 +17,22 @@ class CategoryAdapter @InternalSplittiesApi constructor(host: ViewHolder.Host<Ca
     }
 
     override fun add(item: Category) {
+        var r = false
         var d: Int? = null
-        for(c: Category in items){
-            if(c.cid == item.cid) {
-                d = items.indexOf(c)
+        Log.d("catadapternew", item.cid.toString())
+        for(i: Category in items){
+            Log.d("catadapterexist", i.cid.toString())
+            if(item.cid == i.cid) {
+                d = items.indexOf(item)
                 items[d] = item
+                r = true
             }
         }
-        if(d == null){
+        if(!r) {
             items.add(item)
             d = items.indexOf(item)
         }
-        notifyItemChanged(d)
+        if(d != null) notifyItemChanged(d)
     }
 
     class VH(ctx: Context, layoutManager: RecyclerView.LayoutManager, host: Host<Category>) : ViewHolder<Category>(ctx,
