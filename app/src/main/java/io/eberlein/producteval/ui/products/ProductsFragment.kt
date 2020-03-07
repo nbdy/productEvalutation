@@ -78,6 +78,7 @@ class ProductsFragment(private val dao: ProductDao, private val category: Catego
     private lateinit var addBtn: FloatingActionButton
 
     private lateinit var model: ProductsViewModel
+    private var stillSavingImage: Boolean = false
 
     private fun getImageDirectory(directoryName: String = "images"): File{
         val d = File(context?.filesDir, directoryName)
@@ -91,13 +92,22 @@ class ProductsFragment(private val dao: ProductDao, private val category: Catego
         Log.d(tag, "updated product")
     }
 
-    private fun saveBitmap(product: Product, bmp: Bitmap){ // todo fix; this shits taking hella long / makes app crash if switching fragment too early
+    private fun saveBitmap(product: Product, bmp: Bitmap){
         GlobalScope.launch {
+            stillSavingImage = true
             Log.d(tag, "saving bitmap")
             product.image = bmp.sha256()
             bmp.save(File(getImageDirectory(), product.image!!))
             updateProduct(product)
             Log.d(tag, "saved bitmap")
+            stillSavingImage = false
+        }
+    }
+
+    override fun onDestroy() {
+        if (!stillSavingImage) super.onDestroy()
+        else {
+            toast("still saving an image")
         }
     }
 
