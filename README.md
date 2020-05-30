@@ -1,4 +1,4 @@
 # productEvalutation
-[![Build Status](http://build.eberlein.io:8080/job/android_productevaluation/1/badge/icon)](http://build.eberlein.io:8080/job/android_productevaluation/1/)
+[![Build Status](https://build.eberlein.io/buildStatus/icon?job=android_productevaluation)](https://build.eberlein.io/job/android_productevaluation/)
 
 rate products by categories
